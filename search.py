@@ -107,7 +107,7 @@ def backtrackSearch(steps_history):
     key_step = None
     for previous_step, step, dir in reversed(steps_history):
         if not key_step:
-            key_step = previous_step
+            key_step = step
         # When the current step is the key step we update the key step
         if key_step == step:
             final_path.append(dir)

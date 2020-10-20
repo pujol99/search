@@ -101,6 +101,34 @@ def searchFrontier(frontier, problem):
 
     return steps_history
 
+def searchFrontierUCS(frontier, problem):
+    # Frontier structure contains tuple: (PreviousStep, CurrentStep, Direction of move)
+    steps_history = []
+    visited = set()
+
+    # Init frontier
+    start_state = problem.getStartState()
+    frontier.push((start_state, start_state, None), 0) 
+
+    while not frontier.isEmpty(): 
+        previous_step, current_step, dir = frontier.pop()
+        # Discard initial move and add move to history
+        if current_step != start_state: 
+            steps_history.append((previous_step, current_step, dir))
+
+        # Check goal
+        if problem.isGoalState(current_step):
+            break
+        
+        # Mark step as visited and search for new steps from frontier
+        visited.add(current_step)
+        for future_state, dir, _ in problem.getSuccessors(current_step):
+            if future_state not in visited:
+                frontier.push((current_step, future_state, dir), 
+                            problem.getCostOfActions(backtrackSearch(steps_history)))
+
+    return steps_history
+
 def backtrackSearch(steps_history):
     final_path = []
     # key_step will help us remember what previous step made us reach the current step
@@ -147,7 +175,11 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    frontier = util.PriorityQueue()
+    
+    steps_history = searchFrontierUCS(frontier, problem)
+    
+    return backtrackSearch(steps_history)
 
 def nullHeuristic(state, problem=None):
     """

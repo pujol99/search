@@ -10,7 +10,7 @@
             "type": "python",
             "request": "launch",
             "program": "pacman.py",
-            "args": ["-l", "tinyMaze", "-p", "SearchAgent", "-a", "fn=depthFirstSearch"],
+            "args": ["-l", "mediumMaze", "-p", "SearchAgent", "-a", "fn=ucs"],
             "console": "internalConsole"
         }
     ]

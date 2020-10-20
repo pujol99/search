@@ -72,6 +72,49 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+
+def searchFrontier(frontier, problem):
+    # Frontier structure contains tuple: (PreviousStep, CurrentStep, Direction of move)
+    steps_history = []
+    visited = set()
+
+    # Init frontier
+    start_state = problem.getStartState()
+    frontier.push((start_state, start_state, None)) 
+
+    while not frontier.isEmpty(): 
+        previous_step, current_step, dir = frontier.pop()
+        
+        # Discard initial move and add move to history
+        if current_step != start_state: 
+            steps_history.append((previous_step, current_step, dir))
+
+        # Check goal
+        if problem.isGoalState(current_step):
+            break
+        
+        # Mark step as visited and search for new steps from frontier
+        visited.add(current_step)
+        for future_state, dir, _ in problem.getSuccessors(current_step):
+            if future_state not in visited:
+                frontier.push((current_step, future_state, dir))
+
+    return steps_history
+
+def backtrackSearch(steps_history):
+    final_path = []
+    # key_step will help us remember what previous step made us reach the current step
+    key_step = None
+    for previous_step, step, dir in reversed(steps_history):
+        if not key_step:
+            key_step = previous_step
+        # When the current step is the key step we update the key step
+        if key_step == step:
+            final_path.append(dir)
+            key_step = previous_step
+    
+    return list(reversed(final_path))
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -86,86 +129,20 @@ def depthFirstSearch(problem):
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
-
-    # Frontier structure: PreviousStep, CurrentStep, Direction of move
     frontier = util.Stack()
-    path_history = []
-    final_path = []
-    visited = set()
 
-    # Init frontier
-    start_state = problem.getStartState()
-    frontier.push((start_state, start_state, None)) 
-
-    while not frontier.isEmpty(): 
-        previous_step, current_step, dir = frontier.pop()
-        
-        # Discard initial move and add move to history
-        if current_step != start_state: 
-            path_history.append((previous_step, current_step, dir))
-
-        # Check goal
-        if problem.isGoalState(current_step):
-            break
-        
-        # Mark step as visited and search for new steps from frontier
-        visited.add(current_step)
-        for future_state, dir, _ in problem.getSuccessors(current_step):
-            if future_state not in visited:
-                frontier.push((current_step, future_state, dir))
+    steps_history = searchFrontier(frontier, problem)
     
-    # Backtrack path
-    # key_step will help us remember what previous step made us reach the current step
-    key_step = current_step
-    for previous_step, step, dir in reversed(path_history):
-        # When the current step is the key step we update the key step
-        if key_step == step:
-            final_path.append(dir)
-            key_step = previous_step
-    
-    return list(reversed(final_path))
+    return backtrackSearch(steps_history)
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    
-    # Frontier structure: PreviousStep, CurrentStep, Direction of move
     frontier = util.Queue()
-    path_history = []
-    final_path = []
-    visited = set()
-
-    # Init frontier
-    start_state = problem.getStartState()
-    frontier.push((start_state, start_state, None)) 
-
-    while not frontier.isEmpty(): 
-        previous_step, current_step, dir = frontier.pop()
-        
-        # Discard initial move and add move to history
-        if current_step != start_state: 
-            path_history.append((previous_step, current_step, dir))
-
-        # Check goal
-        if problem.isGoalState(current_step):
-            break
-        
-        # Mark step as visited and search for new steps from frontier
-        visited.add(current_step)
-        for future_state, dir, _ in problem.getSuccessors(current_step):
-            if future_state not in visited:
-                frontier.push((current_step, future_state, dir))
     
-    # Backtrack path
-    # key_step will help us remember what previous step made us reach the current step
-    key_step = current_step
-    for previous_step, step, dir in reversed(path_history):
-        # When the current step is the key step we update the key step
-        if key_step == step:
-            final_path.append(dir)
-            key_step = previous_step
+    steps_history = searchFrontier(frontier, problem)
     
-    return list(reversed(final_path))
+    return backtrackSearch(steps_history)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""

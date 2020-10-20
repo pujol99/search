@@ -87,10 +87,11 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
 
-    visited = set()
     # Frontier structure: PreviousStep, CurrentStep, Direction of move
     frontier = util.Stack()
     path_history = []
+    final_path = []
+    visited = set()
 
     # Init frontier
     start_state = problem.getStartState()
@@ -114,26 +115,25 @@ def depthFirstSearch(problem):
                 frontier.push((current_step, future_state, dir))
     
     # Backtrack path
-    path = [dir]
-
     # key_step will help us remember what previous step made us reach the current step
-    key_step = previous_step
+    key_step = current_step
     for previous_step, step, dir in reversed(path_history):
         # When the current step is the key step we update the key step
         if key_step == step:
-            path.append(dir)
+            final_path.append(dir)
             key_step = previous_step
     
-    return list(reversed(path))
+    return list(reversed(final_path))
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    visited = set()
+    
     # Frontier structure: PreviousStep, CurrentStep, Direction of move
     frontier = util.Queue()
     path_history = []
+    final_path = []
+    visited = set()
 
     # Init frontier
     start_state = problem.getStartState()
@@ -157,17 +157,15 @@ def breadthFirstSearch(problem):
                 frontier.push((current_step, future_state, dir))
     
     # Backtrack path
-    path = [dir]
-
     # key_step will help us remember what previous step made us reach the current step
-    key_step = previous_step
+    key_step = current_step
     for previous_step, step, dir in reversed(path_history):
         # When the current step is the key step we update the key step
         if key_step == step:
-            path.append(dir)
+            final_path.append(dir)
             key_step = previous_step
     
-    return list(reversed(path))
+    return list(reversed(final_path))
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""

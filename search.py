@@ -157,18 +157,15 @@ def depthFirstSearch(problem):
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
-    frontier = util.Stack()
 
-    steps_history = searchFrontier(frontier, problem)
+    steps_history = searchFrontier(util.Stack(), problem)
     
     return backtrackSearch(steps_history)
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    frontier = util.Queue()
-    
-    steps_history = searchFrontier(frontier, problem)
+    steps_history = searchFrontier(util.Queue(), problem)
     
     return backtrackSearch(steps_history)
 

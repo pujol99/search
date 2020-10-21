@@ -166,6 +166,7 @@ def depthFirstSearch(problem):
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
+    
     frontier = util.Queue()
     
     steps_history = searchFrontier(frontier, problem)

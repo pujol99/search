@@ -176,6 +176,7 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+
     frontier = util.PriorityQueue()
     
     steps_history = searchFrontierUCS(frontier, problem)
@@ -192,8 +193,51 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """
+    steps_history = []
+    visited = set()
+    start_state = problem.getStartState()
+    node = Node(problem.getStartState())
 
+    if problem.isGoalState(problem.getStartState()): return start_state.solution()
+    frontier = util.PriorityQueue()
+    frontier.update(node, node.path_cost+heuristic(node.state, problem))
+    explored = set()
+    while not frontier.isEmpty():
+        node = frontier.pop()
+        if problem.isGoalState(node.state): return node.solution()
+        explored.add(node.state)
+        for child in node.expand(problem):
+            if (child.state not in explored) and (child not in frontier.heap):
+                frontier.update(child, child.path_cost+heuristic(child.state, problem))
+    return backtrackSearch(steps_history)
+    """
+    frontier = util.PriorityQueue()
+    steps_history = []
+    visited = set()
+
+    # Init frontier
+    start_state = problem.getStartState()
+    frontier.push((start_state, start_state, None), 0) 
+
+    while not frontier.isEmpty(): 
+        previous_step, current_step, dir = frontier.pop()
+        # Discard initial move and add move to history
+        if current_step != start_state: 
+            steps_history.append((previous_step, current_step, dir))
+
+        # Check goal
+        if problem.isGoalState(current_step):
+            break
+        
+        # Mark step as visited and search for new steps from frontier
+        visited.add(current_step)
+        for future_state, dir, _ in problem.getSuccessors(current_step):
+            if future_state not in visited:
+                frontier.push((current_step, future_state + heuristic(current_step, problem), dir), 
+                            problem.getCostOfActions(backtrackSearch(steps_history)))
+
+    return backtrackSearch(steps_history)
 
 # Abbreviations
 bfs = breadthFirstSearch

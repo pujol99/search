@@ -85,64 +85,24 @@ def searchFrontier(frontier, problem):
     while not frontier.isEmpty(): 
         previous_step, current_step, dir = frontier.pop()
         
-        # Discard initial move and add move to history
-        if current_step != start_state: 
-            steps_history.append((previous_step, current_step, dir))
+        # Add move to history
+        steps_history.append((previous_step, current_step, dir))
+
+        # Mark step as visited
+        visited.add(current_step)
 
         # Check goal
         if problem.isGoalState(current_step):
-            break
+            # Discard first move as its dummy data 
+            return steps_history[1:]
         
-        # Mark step as visited and search for new steps from frontier
-        visited.add(current_step)
+        # Search for new steps from frontier
         for future_state, dir, _ in problem.getSuccessors(current_step):
             if future_state not in visited:
                 frontier.push((current_step, future_state, dir))
 
-    return steps_history
-
-def searchFrontierUCS(frontier, problem):
-    # Frontier structure contains tuple: (PreviousStep, CurrentStep, Direction of move)
-    steps_history = []
-    visited = set()
-
-    # Init frontier
-    start_state = problem.getStartState()
-    frontier.push((start_state, start_state, None), 0) 
-
-    while not frontier.isEmpty(): 
-        previous_step, current_step, dir = frontier.pop()
-        # Discard initial move and add move to history
-        if current_step != start_state: 
-            steps_history.append((previous_step, current_step, dir))
-
-        # Check goal
-        if problem.isGoalState(current_step):
-            break
-        
-        # Mark step as visited and search for new steps from frontier
-        visited.add(current_step)
-        for future_state, dir, _ in problem.getSuccessors(current_step):
-            if future_state not in visited:
-                frontier.push((current_step, future_state, dir), 
-                            problem.getCostOfActions(backtrackSearch(steps_history)))
-
-    return steps_history
-
-def backtrackSearch(steps_history):
-    final_path = []
-    # key_step will help us remember what previous step made us reach the current step
-    key_step = None
-    for previous_step, step, dir in reversed(steps_history):
-        if not key_step:
-            key_step = step
-        # When the current step is the key step we update the key step
-        if key_step == step:
-            final_path.append(dir)
-            key_step = previous_step
+    return False
     
-    return list(reversed(final_path))
-
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -171,12 +131,13 @@ def breadthFirstSearch(problem):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    frontier = util.PriorityQueue()
-    
-    steps_history = searchFrontierUCS(frontier, problem)
+    cost = lambda path: problem.getCostOfActions([x[1] for x in path][1:])
+    frontier_type = util.PriorityQueueWithFunction(cost)
+
+    steps_history = searchFrontier(frontier_type, problem)
     
     return backtrackSearch(steps_history)
+
 
 def nullHeuristic(state, problem=None):
     """

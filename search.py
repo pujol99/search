@@ -124,7 +124,7 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
 
-    return searchFrontier(util.PriorityQueue(), problem)
+    return searchFrontier(util.PriorityQueue(), problem) #aqui ha estat el pol
 
 
 def nullHeuristic(state, problem=None):

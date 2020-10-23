@@ -73,6 +73,7 @@ def tinyMazeSearch(problem):
     return  [s, s, w, s, w, w, s, w]
 
 class Node():
+    """test"""
     def __init__(self, state, parent, action, cost):
         self.state = state
         self.parent = parent

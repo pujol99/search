@@ -72,85 +72,59 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+class Node():
+    def __init__(self, state, parent, action, cost):
+        self.state = state
+        self.parent = parent
+        self.action = action
+        self.cost = cost
 
 def searchFrontier(frontier, problem):
-    # Frontier structure contains tuple: (PreviousStep, CurrentStep, Direction of move)
-    steps_history = []
+    # Frontier structure contains tuple: (State, Parent, Action, Cost)
     visited = set()
 
     # Init frontier
     start_state = problem.getStartState()
-    frontier.push((start_state, start_state, None)) 
+    frontier.push(Node(start_state, None, "Stop", 0))
 
     while not frontier.isEmpty(): 
-        previous_step, current_step, dir = frontier.pop()
+        node = frontier.pop()
         
-        # Add move to history
-        steps_history.append((previous_step, current_step, dir))
-
-        # Mark step as visited
-        visited.add(current_step)
-
         # Check goal
-        if problem.isGoalState(current_step):
-            # Discard first move as its dummy data 
-            return steps_history[1:]
+        if problem.isGoalState(node.state):
+            path = []
+            while node.parent is not None:
+                path.append(node.action)
+                node = node.parent
+            return list(reversed(path))
         
-        # Search for new steps from frontier
-        for future_state, dir, _ in problem.getSuccessors(current_step):
-            if future_state not in visited:
-                frontier.push((current_step, future_state, dir))
+        # Check if its not visited
+        if node.state not in visited:
+            visited.add(node.state)
+        
+            # Search for new steps from frontier
+            for next_state, action, cost in problem.getSuccessors(node.state):
+                if next_state not in visited:
+                    frontier.push(Node(next_state, node, action, cost))
 
     return False
 
-def backtrackSearch(steps_history):
-    final_path = []
-    # key_step will help us remember what previous step made us reach the current step
-    key_step = None
-    for previous_step, step, dir in reversed(steps_history):
-        if not key_step:
-            key_step = step
-        # When the current step is the key step we update the key step
-        if key_step == step:
-            final_path.append(dir)
-            key_step = previous_step
-    
-    return list(reversed(final_path))
     
 def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first.
-
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    """
-
-    steps_history = searchFrontier(util.Stack(), problem)
+    """Search the deepest nodes in the search tree first."""
     
-    return backtrackSearch(steps_history)
+    return searchFrontier(util.Stack(), problem)
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    steps_history = searchFrontier(util.Queue(), problem)
-    
-    return backtrackSearch(steps_history)
+
+    return searchFrontier(util.Queue(), problem)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    cost = lambda path: problem.getCostOfActions([x[1] for x in path][1:])
-    frontier_type = util.PriorityQueueWithFunction(cost)
 
-    steps_history = searchFrontier(frontier_type, problem)
-    
-    return backtrackSearch(steps_history)
+    return searchFrontier(util.PriorityQueue(), problem)
 
 
 def nullHeuristic(state, problem=None):

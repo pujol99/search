@@ -19,48 +19,6 @@ Pacman agents (in searchAgents.py).
 
 import util
 
-class Node:
-
-   
-    def __init__(self, state, parent=None, action=None, path_cost=0):
-        "Create a search tree Node, derived from a parent by an action."
-        self.state = state
-        self.parent = parent
-        self.action = action
-        self.path_cost = path_cost
-        self.depth = 0
-        if parent:
-            self.depth = parent.depth + 1
-    
-
-    def amplify(self, problem):
-        "List the nodes reachable in one step from this node."
-        return [self.child_node(problem, action)
-                for action in problem.getSuccessors(self.state)]
-
-    def child_node(self, problem, action):
-       
-        next = action[0]
-        return Node(next, self, action[1], self.path_cost+action[2])
-
-    def result(self):
-
-        return [node.action for node in self.path()[1:]]
-
-    def path(self):
-
-        node, path_back = self, []
-        while node:
-            path_back.append(node)
-            node = node.parent
-        return list(reversed(path_back))
-
-    def __eq__(self, other):
-        return isinstance(other, Node) and self.state == other.state
-
-    def hash(self):
-        return hash(self.state)
-
 
 class SearchProblem:
     """
@@ -126,11 +84,9 @@ class Node():
 def searchFrontier(frontier, problem):
     # Frontier structure contains tuple: (State, Parent, Action, Cost)
     visited = set()
-
     # Init frontier
     start_state = problem.getStartState()
     frontier.push(Node(start_state, None, "Stop", 0))
-
     while not frontier.isEmpty(): 
         node = frontier.pop()
         
@@ -150,78 +106,7 @@ def searchFrontier(frontier, problem):
             for next_state, action, cost in problem.getSuccessors(node.state):
                 if next_state not in visited:
                     frontier.push(Node(next_state, node, action, cost))
-
     return False
-
-"""
-        # Check goal
-        if problem.isGoalState(current_step):
-            break
-        
-        # Mark step as visited and search for new steps from frontier
-        visited.add(current_step)
-        for future_state, dir, _ in problem.getSuccessors(current_step):
-            if future_state not in visited:
-                frontier.push((current_step, future_state, dir), 
-                            problem.getCostOfActions(backtrackSearch(steps_history)))
-
-    return steps_history """
-
-def searchFrontierA(frontier, problem):
-    # Frontier structure contains tuple: (PreviousStep, CurrentStep, Direction of move)
-    steps_history = []
-    visited = set()
-
-    # Init frontier
-    start_state = problem.getStartState()
-    frontier.push((start_state, start_state, None), 0) 
-
-    while not frontier.isEmpty(): 
-        previous_step, current_step, dir = frontier.pop()
-        # Discard initial move and add move to history
-        if current_step != start_state: 
-            steps_history.append((previous_step, current_step, dir))
-
-        # Check goal
-        if problem.isGoalState(current_step):
-            break
-        
-        # Mark step as visited and search for new steps from frontier
-        visited.add(current_step)
-        for future_state, dir, _ in problem.getSuccessors(current_step):
-            if future_state not in visited:
-                frontier.push((current_step, future_state, dir), 
-                            problem.getCostOfActions(backtrackSearchA(steps_history)))
-
-    return steps_history
-
-def backtrackSearch(steps_history):
-    final_path = []
-    # key_step will help us remember what previous step made us reach the current step
-    key_step = None
-    for previous_step, step, dir in reversed(steps_history):
-        if not key_step:
-            key_step = step
-        # When the current step is the key step we update the key step
-        if key_step == step:
-            final_path.append(dir)
-            key_step = previous_step
-    
-    return list(reversed(final_path))
-
-def backtrackSearchA(steps_history):
-    final_path = []
-    # key_step will help us remember what previous step made us reach the current step
-    key_step = None
-    for previous_step, step, dir in reversed(steps_history):
-        if not key_step:
-            key_step = step
-        # When the current step is the key step we update the key step
-        if key_step == step:
-            final_path.append(dir)
-            key_step = previous_step
-    
-    return list(reversed(final_path))
 
 
 def depthFirstSearch(problem):
@@ -233,46 +118,14 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
 
-    """
-    frontier = util.Queue()
     
-    steps_history = searchFrontier(frontier, problem)
-    
-    return backtrackSearch(steps_history)
-"""
-    node = Node(problem.getStartState())
-    if problem.isGoalState(problem.getStartState()): return node.result()
-    frontier = util.Queue()
-    frontier.push(node)
-    explored = set()
-    while not frontier.isEmpty():
-        node = frontier.pop()
-        if problem.isGoalState(node.state): return node.result()
-        explored.add(node.state)
-        for child in node.amplify(problem):
-            if (child.state not in explored) and (child not in frontier.list):
-                frontier.push(child)
-    return []
-
-def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-
-    frontier = util.PriorityQueue()
-    
-    steps_history = searchFrontierUCS(frontier, problem)
-    
-    return backtrackSearch(steps_history)
-
-
     return searchFrontier(util.Queue(), problem)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
 
-    return searchFrontier(util.PriorityQueue(), problem) #aqui ha estat el pol
 
-
+    return searchFrontier(util.PriorityQueue(), problem)
 
 def nullHeuristic(state, problem=None):
     """
@@ -283,26 +136,7 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
 
-    node = Node(problem.getStartState())
-
-    if problem.isGoalState(problem.getStartState()): 
-        return node.result()
-    
-    frontier = util.PriorityQueue()
-    frontier.update(node, node.path_cost+heuristic(node.state, problem))
-    explored = set()
-    
-    while not frontier.isEmpty():
-        node = frontier.pop()
-        
-        if problem.isGoalState(node.state): 
-            return node.result()
-
-        explored.add(node.state)
-        
-        for child in node.amplify(problem):
-            if (child.state not in explored) and (child not in frontier.heap):
-                frontier.update(child, child.path_cost+heuristic(child.state, problem))
+    util.raiseNotDefined()
 
 # Abbreviations
 bfs = breadthFirstSearch

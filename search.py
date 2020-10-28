@@ -153,7 +153,7 @@ def searchFrontier(frontier, problem):
 
     return False
 
-<<<<<<< HEAD
+"""
         # Check goal
         if problem.isGoalState(current_step):
             break
@@ -165,7 +165,7 @@ def searchFrontier(frontier, problem):
                 frontier.push((current_step, future_state, dir), 
                             problem.getCostOfActions(backtrackSearch(steps_history)))
 
-    return steps_history
+    return steps_history """
 
 def searchFrontierA(frontier, problem):
     # Frontier structure contains tuple: (PreviousStep, CurrentStep, Direction of move)
@@ -223,9 +223,7 @@ def backtrackSearchA(steps_history):
     
     return list(reversed(final_path))
 
-=======
-    
->>>>>>> ceb9642c445a73a47e6d4c31ca87fa608f188a8d
+
 def depthFirstSearch(problem):
     """Search the deepest nodes in the search tree first."""
     
@@ -234,7 +232,7 @@ def depthFirstSearch(problem):
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-<<<<<<< HEAD
+
     """
     frontier = util.Queue()
     
@@ -265,7 +263,7 @@ def uniformCostSearch(problem):
     steps_history = searchFrontierUCS(frontier, problem)
     
     return backtrackSearch(steps_history)
-=======
+
 
     return searchFrontier(util.Queue(), problem)
 
@@ -274,7 +272,7 @@ def uniformCostSearch(problem):
 
     return searchFrontier(util.PriorityQueue(), problem) #aqui ha estat el pol
 
->>>>>>> ceb9642c445a73a47e6d4c31ca87fa608f188a8d
+
 
 def nullHeuristic(state, problem=None):
     """

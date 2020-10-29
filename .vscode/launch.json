@@ -8,8 +8,8 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "pacman.py",
-            "args": ["-l", "mediumMaze", "-p", "SearchAgent", "-a", "fn=bfs"],
+            "program": "autograder.py",
+            "args": [],
             "console": "internalConsole"
         }
     ]

@@ -131,6 +131,8 @@ def searchFrontierPriority(frontier, problem):
             # Search for new steps from frontier
             for next_state, action, cost in problem.getSuccessors(node.state):
                 if next_state not in visited:
+                    if node.parent:
+                        cost += node.parent.cost
                     frontier.push(Node(next_state, node, action, cost), cost)
     return False
 

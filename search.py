@@ -111,6 +111,30 @@ def searchFrontier(frontier, problem):
     return False
 
 
+def searchFrontierPriority(frontier, problem):
+    # Frontier structure contains tuple: (State, Parent, Action, Cost)
+    visited = set()
+    # Init frontier
+    start_state = problem.getStartState()
+    frontier.push(Node(start_state, None, "Stop", 0), 0)
+    while not frontier.isEmpty(): 
+        node = frontier.pop()
+        
+        # Check goal
+        if problem.isGoalState(node.state):
+            return backtrack(node)
+        
+        # Check if its not visited
+        if node.state not in visited:
+            visited.add(node.state)
+        
+            # Search for new steps from frontier
+            for next_state, action, cost in problem.getSuccessors(node.state):
+                if next_state not in visited:
+                    frontier.push(Node(next_state, node, action, cost), cost)
+    return False
+
+
 def depthFirstSearch(problem):
     """Search the deepest nodes in the search tree first."""
     
@@ -127,7 +151,7 @@ def uniformCostSearch(problem):
     """Search the node of least total cost first."""
 
 
-    return searchFrontier(util.PriorityQueue(), problem)
+    return searchFrontierPriority(util.PriorityQueue(), problem)
 
 def nullHeuristic(state, problem=None):
     """

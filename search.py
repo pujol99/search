@@ -74,12 +74,18 @@ def tinyMazeSearch(problem):
     return  [s, s, w, s, w, w, s, w]
 
 class Node():
-    """test"""
     def __init__(self, state, parent, action, cost):
         self.state = state
         self.parent = parent
         self.action = action
         self.cost = cost
+
+def backtrack(node):
+    path = []
+    while node.parent is not None:
+        path.append(node.action)
+        node = node.parent
+    return list(reversed(path))
 
 def searchFrontier(frontier, problem):
     # Frontier structure contains tuple: (State, Parent, Action, Cost)
@@ -92,11 +98,7 @@ def searchFrontier(frontier, problem):
         
         # Check goal
         if problem.isGoalState(node.state):
-            path = []
-            while node.parent is not None:
-                path.append(node.action)
-                node = node.parent
-            return list(reversed(path))
+            return backtrack(node)
         
         # Check if its not visited
         if node.state not in visited:

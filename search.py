@@ -136,6 +136,31 @@ def searchFrontierPriority(frontier, problem):
                     frontier.push(Node(next_state, node, action, cost), cost)
     return False
 
+def searchFrontierA(frontier, problem, heuristic):
+    # Frontier structure contains tuple: (State, Parent, Action, Cost)
+    visited = set()
+    # Init frontier
+    start_state = problem.getStartState()
+    frontier.push(Node(start_state, None, "Stop", 0), 0)
+    while not frontier.isEmpty(): 
+        node = frontier.pop()
+        
+        # Check goal
+        if problem.isGoalState(node.state):
+            return backtrack(node)
+        
+        # Check if its not visited
+        if node.state not in visited:
+            visited.add(node.state)
+        
+            # Search for new steps from frontier
+            for next_state, action, cost in problem.getSuccessors(node.state):
+                if next_state not in visited:
+                    if node.parent:
+                        cost += node.cost
+                    new_cost = cost + heuristic(next_state, problem)
+                    frontier.push(Node(next_state, node, action, cost), new_cost)
+    return False
 
 def depthFirstSearch(problem):
     """Search the deepest nodes in the search tree first."""
@@ -164,7 +189,7 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
 
-    util.raiseNotDefined()
+    return searchFrontierA(util.PriorityQueue(), problem, heuristic)
 
 # Abbreviations
 bfs = breadthFirstSearch

@@ -87,12 +87,31 @@ def backtrack(node):
         node = node.parent
     return list(reversed(path))
 
-def searchFrontier(frontier, problem):
+def pushFronier(problem, frontier, node, visited, heuristic=None):
+    for next_state, action, cost in problem.getSuccessors(node.state):
+        if next_state not in visited:
+            frontier.push(Node(next_state, node, action, cost))
+
+def pushFronierUniform(problem, frontier, node, visited, heuristic=None):
+    for next_state, action, cost in problem.getSuccessors(node.state):
+        if next_state not in visited:
+            if node.parent:
+                cost += node.cost
+            frontier.push(Node(next_state, node, action, cost), cost)
+
+def pushFronierAStar(problem, frontier, node, visited, heuristic=None):
+    for next_state, action, cost in problem.getSuccessors(node.state):
+        if next_state not in visited:
+            if node.parent:
+                cost += node.cost
+            new_cost = cost + heuristic(next_state, problem)
+            frontier.push(Node(next_state, node, action, cost), new_cost)
+
+def searchFrontier(frontier, problem, pushType, heuristic=None):
     # Frontier structure contains tuple: (State, Parent, Action, Cost)
     visited = set()
     # Init frontier
-    start_state = problem.getStartState()
-    frontier.push(Node(start_state, None, "Stop", 0))
+    
     while not frontier.isEmpty(): 
         node = frontier.pop()
         
@@ -105,80 +124,39 @@ def searchFrontier(frontier, problem):
             visited.add(node.state)
         
             # Search for new steps from frontier
-            for next_state, action, cost in problem.getSuccessors(node.state):
-                if next_state not in visited:
-                    frontier.push(Node(next_state, node, action, cost))
-    return False
-
-
-def searchFrontierPriority(frontier, problem):
-    # Frontier structure contains tuple: (State, Parent, Action, Cost)
-    visited = set()
-    # Init frontier
-    start_state = problem.getStartState()
-    frontier.push(Node(start_state, None, "Stop", 0), 0)
-    while not frontier.isEmpty(): 
-        node = frontier.pop()
-        
-        # Check goal
-        if problem.isGoalState(node.state):
-            return backtrack(node)
-        
-        # Check if its not visited
-        if node.state not in visited:
-            visited.add(node.state)
-        
-            # Search for new steps from frontier
-            for next_state, action, cost in problem.getSuccessors(node.state):
-                if next_state not in visited:
-                    if node.parent:
-                        cost += node.cost
-                    frontier.push(Node(next_state, node, action, cost), cost)
-    return False
-
-def searchFrontierA(frontier, problem, heuristic):
-    # Frontier structure contains tuple: (State, Parent, Action, Cost)
-    visited = set()
-    # Init frontier
-    start_state = problem.getStartState()
-    frontier.push(Node(start_state, None, "Stop", 0), 0)
-    while not frontier.isEmpty(): 
-        node = frontier.pop()
-        
-        # Check goal
-        if problem.isGoalState(node.state):
-            return backtrack(node)
-        
-        # Check if its not visited
-        if node.state not in visited:
-            visited.add(node.state)
-        
-            # Search for new steps from frontier
-            for next_state, action, cost in problem.getSuccessors(node.state):
-                if next_state not in visited:
-                    if node.parent:
-                        cost += node.cost
-                    new_cost = cost + heuristic(next_state, problem)
-                    frontier.push(Node(next_state, node, action, cost), new_cost)
+            pushType(problem, frontier, node, visited, heuristic)
+            
     return False
 
 def depthFirstSearch(problem):
     """Search the deepest nodes in the search tree first."""
+    start_state = problem.getStartState()
+
+    frontier = util.Stack()
+    frontier.push(Node(start_state, None, "Stop", 0))
     
-    return searchFrontier(util.Stack(), problem)
+    return searchFrontier(frontier, problem, pushFronier)
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-
+    start_state = problem.getStartState()
     
-    return searchFrontier(util.Queue(), problem)
+    frontier = util.Queue()
+    frontier.push(Node(start_state, None, "Stop", 0))
+    
+    return searchFrontier(frontier, problem, pushFronier)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
+    start_state = problem.getStartState()
+    
+    frontier = util.PriorityQueue()
+    frontier.push(Node(start_state, None, "Stop", 0), 0)
 
+    
 
-    return searchFrontierPriority(util.PriorityQueue(), problem)
+    return searchFrontier(frontier, problem, pushFronierUniform)
 
 def nullHeuristic(state, problem=None):
     """
@@ -188,8 +166,12 @@ def nullHeuristic(state, problem=None):
     return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
+    start_state = problem.getStartState()
+    
+    frontier = util.PriorityQueue()
+    frontier.push(Node(start_state, None, "Stop", 0), 0)
 
-    return searchFrontierA(util.PriorityQueue(), problem, heuristic)
+    return searchFrontier(frontier, problem, pushFronierAStar, heuristic)
 
 # Abbreviations
 bfs = breadthFirstSearch

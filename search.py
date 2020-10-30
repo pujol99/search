@@ -73,6 +73,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+# Node structure to store states of the search
 class Node():
     def __init__(self, state, parent, action, cost):
         self.state = state
@@ -81,9 +82,11 @@ class Node():
         self.cost = cost
 
     def initFrontier(self, frontierType):
-        """Init frontier pushing the first node"""
+        """Init frontier from specific node"""
+
         frontier = frontierType()
         if "Priority" in frontierType.__name__:
+            # Add priority value if its a priority frontier
             frontier.push(self, 0)
         else:
             frontier.push(self)
@@ -91,14 +94,16 @@ class Node():
     
     def frontierPush(self, frontier, priority):
         """Push this node to the frontier adding priority if necessary"""
+
         if priority == None:
             frontier.push(self)
         else:
             frontier.push(self, priority)
 
     def backtrack(self):
-        """Keep backtracking node from parents till no parent
+        """Keep backtracking node from parents until no parent,
             keeping track of actions done"""
+            
         path = []
         node = self
         while node.parent:
@@ -118,7 +123,7 @@ def searchFrontier(frontierType, problem, priority):
     while not frontier.isEmpty(): 
         node = frontier.pop()
         
-        # Check goal
+        # Check if its goal
         if problem.isGoalState(node.state):
             return node.backtrack()
         
@@ -127,25 +132,25 @@ def searchFrontier(frontierType, problem, priority):
             visited.add(node.state)
         
             # Search for new steps from frontier that are not visited
-            for next_state, action, cost in problem.getSuccessors(node.state):
-                if next_state not in visited:
+            for next_node, action, cost in problem.getSuccessors(node.state):
+                if next_node not in visited:
 
                     # update cost of node adding parent's cost
                     if node.parent:
                         cost += node.cost
 
-                    # push child to frontier with corresponding priority
-                    child = Node(next_state, node, action, cost)
+                    # push child to frontier with corresponding computed priority
+                    child = Node(next_node, node, action, cost)
                     child.frontierPush(
                         frontier,
-                        priority(next_state, cost))
+                        priority(child.state, child.cost))
     # No goal found
     return False
 
 def depthFirstSearch(problem):
     """Search the deepest nodes in the search tree first."""
     # In DFS there is no priority between nodes
-    priority = lambda next_state, cost: None
+    priority = lambda node, cost: None
     
     return searchFrontier(util.Stack, problem, priority)
 
@@ -153,14 +158,14 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     # In BrFS there is no priority between nodes
-    priority = lambda next_state, cost: None
+    priority = lambda node, cost: None
     
     return searchFrontier(util.Queue, problem, priority)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     # In UCS the priority is the cost of reaching the next node
-    priority = lambda next_state, cost: cost
+    priority = lambda node, cost: cost
 
     return searchFrontier(util.PriorityQueue, problem, priority)
 
@@ -174,7 +179,7 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     # In A* the priority is the cost of reaching the next node
     # plus the heuristic function on the next node
-    priority = lambda next_state, cost: cost + heuristic(next_state, problem)
+    priority = lambda node, cost: cost + heuristic(node, problem)
 
     return searchFrontier(util.PriorityQueue, problem, priority)
 

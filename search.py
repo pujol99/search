@@ -140,6 +140,7 @@ def searchFrontier(frontierType, problem, priority):
 
 def depthFirstSearch(problem):
     """Search the deepest nodes in the search tree first."""
+    # In DFS there is no priority between nodes
     priority = lambda next_state, cost: None
     
     return searchFrontier(util.Stack, problem, priority)
@@ -147,12 +148,14 @@ def depthFirstSearch(problem):
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
+    # In BrFS there is no priority between nodes
     priority = lambda next_state, cost: None
     
     return searchFrontier(util.Queue, problem, priority)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
+    # In UCS the priority is the cost of reaching the next node
     priority = lambda next_state, cost: cost
 
     return searchFrontier(util.PriorityQueue, problem, priority)
@@ -165,6 +168,8 @@ def nullHeuristic(state, problem=None):
     return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
+    # In A* the priority is the cost of reaching the next node
+    # plus the heuristic function on the next node
     priority = lambda next_state, cost: cost + heuristic(next_state, problem)
 
     return searchFrontier(util.PriorityQueue, problem, priority)

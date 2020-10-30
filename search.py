@@ -81,6 +81,7 @@ class Node():
         self.cost = cost
 
     def initFrontier(self, frontierType):
+        """Init frontier pushing the first node"""
         frontier = frontierType()
         if "Priority" in frontierType.__name__:
             frontier.push(self, 0)
@@ -88,16 +89,19 @@ class Node():
             frontier.push(self)
         return frontier
     
-    def frontierPush(self, frontier, stateCost=None):
-        if not stateCost:
+    def frontierPush(self, frontier, priority):
+        """Push this node to the frontier adding priority if necessary"""
+        if priority == None:
             frontier.push(self)
         else:
-            frontier.push(self, stateCost)
+            frontier.push(self, priority)
 
     def backtrack(self):
+        """Keep backtracking node from parents till no parent
+            keeping track of actions done"""
         path = []
         node = self
-        while node.parent is not None:
+        while node.parent:
             path.append(node.action)
             node = node.parent
         return list(reversed(path))

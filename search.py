@@ -80,83 +80,82 @@ class Node():
         self.action = action
         self.cost = cost
 
-def backtrack(node):
-    path = []
-    while node.parent is not None:
-        path.append(node.action)
-        node = node.parent
-    return list(reversed(path))
-
-def pushFronier(problem, frontier, node, visited, heuristic=None):
-    for next_state, action, cost in problem.getSuccessors(node.state):
-        if next_state not in visited:
-            frontier.push(Node(next_state, node, action, cost))
-
-def pushFronierUniform(problem, frontier, node, visited, heuristic=None):
-    for next_state, action, cost in problem.getSuccessors(node.state):
-        if next_state not in visited:
-            if node.parent:
-                cost += node.cost
-            frontier.push(Node(next_state, node, action, cost), cost)
-
-def pushFronierAStar(problem, frontier, node, visited, heuristic=None):
-    for next_state, action, cost in problem.getSuccessors(node.state):
-        if next_state not in visited:
-            if node.parent:
-                cost += node.cost
-            new_cost = cost + heuristic(next_state, problem)
-            frontier.push(Node(next_state, node, action, cost), new_cost)
-
-def searchFrontier(frontier, problem, pushType, heuristic=None):
-    # Frontier structure contains tuple: (State, Parent, Action, Cost)
-    visited = set()
-    # Init frontier
+    def initFrontier(self, frontierType):
+        frontier = frontierType()
+        if "Priority" in frontierType.__name__:
+            frontier.push(self, 0)
+        else:
+            frontier.push(self)
+        return frontier
     
+    def frontierPush(self, frontier, stateCost=None):
+        if not stateCost:
+            frontier.push(self)
+        else:
+            frontier.push(self, stateCost)
+
+    def backtrack(self):
+        path = []
+        node = self
+        while node.parent is not None:
+            path.append(node.action)
+            node = node.parent
+        return list(reversed(path))
+
+
+def searchFrontier(frontierType, problem, priority):
+    visited = set()
+
+    # Init frontier from first start state node
+    # Node structure contains tuple: (State, Parent, Action, Cost)
+    frontier = Node(problem.getStartState(), None, "Stop", 0).initFrontier(
+        frontierType)
+
     while not frontier.isEmpty(): 
         node = frontier.pop()
         
         # Check goal
         if problem.isGoalState(node.state):
-            return backtrack(node)
+            return node.backtrack()
         
         # Check if its not visited
         if node.state not in visited:
             visited.add(node.state)
         
-            # Search for new steps from frontier
-            pushType(problem, frontier, node, visited, heuristic)
-            
+            # Search for new steps from frontier that are not visited
+            for next_state, action, cost in problem.getSuccessors(node.state):
+                if next_state not in visited:
+
+                    # update cost of node adding parent's cost
+                    if node.parent:
+                        cost += node.cost
+
+                    # push child to frontier with corresponding priority
+                    child = Node(next_state, node, action, cost)
+                    child.frontierPush(
+                        frontier,
+                        priority(next_state, cost))
+    # No goal found
     return False
 
 def depthFirstSearch(problem):
     """Search the deepest nodes in the search tree first."""
-    start_state = problem.getStartState()
-
-    frontier = util.Stack()
-    frontier.push(Node(start_state, None, "Stop", 0))
+    priority = lambda next_state, cost: None
     
-    return searchFrontier(frontier, problem, pushFronier)
+    return searchFrontier(util.Stack, problem, priority)
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    start_state = problem.getStartState()
+    priority = lambda next_state, cost: None
     
-    frontier = util.Queue()
-    frontier.push(Node(start_state, None, "Stop", 0))
-    
-    return searchFrontier(frontier, problem, pushFronier)
+    return searchFrontier(util.Queue, problem, priority)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    start_state = problem.getStartState()
-    
-    frontier = util.PriorityQueue()
-    frontier.push(Node(start_state, None, "Stop", 0), 0)
+    priority = lambda next_state, cost: cost
 
-    
-
-    return searchFrontier(frontier, problem, pushFronierUniform)
+    return searchFrontier(util.PriorityQueue, problem, priority)
 
 def nullHeuristic(state, problem=None):
     """
@@ -166,12 +165,9 @@ def nullHeuristic(state, problem=None):
     return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-    start_state = problem.getStartState()
-    
-    frontier = util.PriorityQueue()
-    frontier.push(Node(start_state, None, "Stop", 0), 0)
+    priority = lambda next_state, cost: cost + heuristic(next_state, problem)
 
-    return searchFrontier(frontier, problem, pushFronierAStar, heuristic)
+    return searchFrontier(util.PriorityQueue, problem, priority)
 
 # Abbreviations
 bfs = breadthFirstSearch

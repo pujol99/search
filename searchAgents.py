@@ -333,17 +333,17 @@ class CornersProblem(search.SearchProblem):
             hitsWall = self.walls[nextx][nexty]
             
             if not hitsWall:
-                newPosition = (nextx, nexty)
-                restCorners = state[1][:]
+                new_Position = (nextx, nexty)
+                corners = state[1][:]
                 
-                if newPosition in restCorners:
-                    temp = list(restCorners)
-                    temp.remove(newPosition)
-                    restCorners = tuple(temp)
+                if new_Position in corners:
+                    temp = list(corners)
+                    temp.remove(new_Position)
+                    corners = tuple(temp)
                 
-                newState = (newPosition, restCorners)
-                actionCost = 1
-                successor =(newState, action, actionCost)
+                new_State = (new_Position, corners)
+                action_Cost = 1
+                successor =(new_State, action, action_Cost)
                 successors.append(successor)
         
         self._expanded += 1 # DO NOT CHANGE
@@ -444,6 +444,7 @@ class AStarFoodSearchAgent(SearchAgent):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
 
+
 def foodHeuristic(state, problem):
     """
     Your heuristic for the FoodSearchProblem goes here.
@@ -474,7 +475,21 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    food_List = foodGrid.asList()
+    
+    if len(food_List) == 0:
+        return 0
+
+    next_food = food_List[0]
+    max_cost = util.manhattanDistance(position, next_food)  
+    for food in food_List[1:]:
+        cost = util.manhattanDistance(position, food)
+        if max_cost < cost:
+            max_cost = cost
+            next_food = food
+
+    return util.manhattanDistance(position, next_food)
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"

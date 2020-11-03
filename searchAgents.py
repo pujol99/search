@@ -377,28 +377,26 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    current_state = state[0]
+    corners = set(state[1]) # Set of corners
 
     heuristic_value = 0
-    current_state = state[0]
-    unvisited = set(state[1]) # Set of corners
-
-    while unvisited:
+    
+    while corners:
         distances = []
 
         # Compute distances to each corner
-        for corner in unvisited:
+        for corner in corners:
             distance = util.manhattanDistance(current_state, corner)
             distances.append((distance, corner))
 
         # Find minium distance
         min_distance, corner = min(distances)
-        heuristic_value += min_distance
 
-        # Update state
+        # Update everything
+        heuristic_value += min_distance
         current_state = corner
-        unvisited.remove(corner)
+        corners.remove(corner)
 
     return heuristic_value
 

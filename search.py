@@ -120,7 +120,7 @@ def searchFrontier(frontierType, problem, priority):
     frontier = Node(problem.getStartState(), None, "Stop", 0).initFrontier(
         frontierType)
 
-    while not frontier.isEmpty(): 
+    while frontier: 
         node = frontier.pop()
         
         # Check if its goal
